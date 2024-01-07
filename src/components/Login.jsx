@@ -3,6 +3,8 @@ import { users } from '../data';
 import { useDispatch, useSelector } from 'react-redux'
 import { setUserData, setLogin } from "../stores/user"
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+
 const Login = ({ onLogin }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch()
@@ -12,57 +14,54 @@ const Login = ({ onLogin }) => {
     const [tcno, setTcno] = useState('');
     const [password, setPassword] = useState('');
     const [loginAttempts, setLoginAttempts] = useState(0);
-    const [user, setUser] = useState({ id: 0, tcno: "", password: "", balance: 2000, name: "", surname: "" });
     const login = useSelector((state) => state.user.isLoggedIn);
     console.log("main login: " + JSON.stringify(login))
 
     const handleLogin = () => {
 
         const currentUser = users.find(user => user.tcno === tcno); // find user by tcno
-        setUser(currentUser);
-        console.log(user)
-        if (user && user.password === password) {
-            dispatch(setUserData(user));
-            dispatch(setLogin());
+
+        if (currentUser && loginAttempts <= 2 && currentUser.password === password) {
+            dispatch(setUserData(currentUser));
+            dispatch(setLogin({ status: true }));
             navigate('/dashboard');
-        } else {
+        }
+        else {
             setLoginAttempts(loginAttempts + 1);
-            if (loginAttempts >= 2) {
-                alert('Hesabınız bloke oldu. Lütfen daha sonra tekrar deneyin.');
+            if (loginAttempts > 2) {
+                toast.error("You've made too many wrong entry.");
             } else {
-                alert('Hatalı kullanıcı adı veya şifre. Kalan deneme hakkınız: ' + (2 - loginAttempts));
+                toast.error('Wrong username or password. Your remaining attempts: ' + (2 - loginAttempts));
             }
         }
+
     };
 
     return (
-        <div className="max-w-md mx-auto bg-gray-200 p-8 mt-10 shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Login</h2>
-            <label className="block mb-4">
-                <span className="text-gray-700">Username:</span>
-                <input
-                    type="text"
-                    value={tcno}
-                    onChange={(e) => setTcno(e.target.value)}
-                    className="form-input mt-1 block w-full rounded-lg p-2"
+        <div className="max-w-md mx-auto p-8 mt-32 shadow-md">
+            <h2 className="text-2xl font-bold mb-8 text-gray-500">Login</h2>
+            <div className="max-w-md mx-auto">
+                <div className="relative z-0 w-full mb-5 group">
+                    <input type="text" value={tcno}
+                        onChange={(e) => setTcno(e.target.value)} name="floating_text" id="floating_text" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                    <label htmlFor="floating_text" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Tc No</label>
+                </div>
+                <div className="relative z-0 w-full mb-5 group">
+                    <input type="password" value={password}
+                        onChange={(e) => setPassword(e.target.value)} name="floating_password" id="floating_password" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                    <label htmlFor="floating_password" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+                </div>
+                <button
+                    onClick={handleLogin}
+                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue active:bg-blue-800"
+                >
+                    Login
+                </button>
+                <Toaster
+                    position="top-right"
+                    reverseOrder={false}
                 />
-            </label>
-            <label className="block mb-4">
-                <span className="text-gray-700">Password:</span>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="form-input mt-1 block w-full rounded-lg p-2"
-                />
-            </label>
-            <button
-                onClick={handleLogin}
-                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue active:bg-blue-800"
-            >
-                Login
-            </button>
-
+            </div>
         </div>
 
     );

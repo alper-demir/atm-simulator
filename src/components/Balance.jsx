@@ -1,12 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
-
+import { useSelector } from 'react-redux'
 const Balance = () => {
-    const location = useLocation();
-    const user = location.state && location.state.user;
-    console.log("balance user " + user);
+
+    const balance = useSelector((state) => state.user.user.balance);
+
     return (
-        <div>
-            <Link to="/dashboard">Geri dön</Link>
+        <div className="max-w-md mx-auto my-8 p-6 bg-white rounded-md shadow-md">
+            <h2 className="text-2xl font-semibold mb-4 text-indigo-700">Balance</h2>
+            <h3 className='text-gray-500'>Your total balance: {balance} ₺</h3>
         </div>
     );
 };
